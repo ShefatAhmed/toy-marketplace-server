@@ -50,9 +50,54 @@ async function run() {
       const result = await toyCollection.insertOne(newToy);
       res.send(result);
     })
+    app.get("/mytoy/:email", async(req, res)=> {
+      console.log(req.params.id);
+      const toys = await toyCollection.find({
+        seller_email : req.params.email,
+      })
+      .toArray();
+      res.send(toys)
+    })
+
+    app.get('/mytoy/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toyCollection.findOne(query);
+      res.send(result);
+  })
+
+  app.put('/toy/:id', async(req, res) => {
+    const id = req.params.id;
+    const updateToy = req.body;
+    console.log(id, updateToy);
+
+    const filter = {_id: new ObjectId(id)}
+    const options = {upsert: true}
+    const updateToyData = {
+      $set: {
+        price: updateToy.price,
+        description: updateToy.description,
+        available_quantity: updateToy.available_quantity
+      }
+    }
+
+    const result = await toyCollection.updateOne(filter, updateToyData, options);
+    res.send(result)
+
+  })
+
+    app.delete("/mytoy/:id", async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await toyCollection.deleteOne(query);
+      res.send(result);
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
