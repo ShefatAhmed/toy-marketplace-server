@@ -26,107 +26,111 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     const toyCollection = client.db('toyUser').collection('toy');
 
-    app.get('/toy', async(req, res) =>{
-        const cursor = toyCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+    app.get('/toy', async (req, res) => {
+      const cursor = toyCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
     })
-    app.get('/alltoys', async(req, res) =>{
-        const result = await toyCollection.find().limit(20).toArray();
-        res.send(result);
+    app.get('/alltoys', async (req, res) => {
+      const result = await toyCollection.find().limit(20).toArray();
+      res.send(result);
     })
     app.get('/toy/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
 
       const options = {
-          // Include only the `title` and `imdb` fields in the returned document
-          projection: { price: 1, img: 1, name: 1, seller_name: 1, seller_email: 1, rating: 1, available_quantity: 1, description: 1},
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: { price: 1, img: 1, name: 1, seller_name: 1, seller_email: 1, rating: 1, available_quantity: 1, description: 1 },
       };
 
       const result = await toyCollection.findOne(query, options);
       res.send(result);
-  })
+    })
 
-  // indexing sub-category
-  app.get("/tabs/:category", async (req, res) => {
-    console.log(req.params.id);
+    // indexing sub-category
+    app.get("/tabs/:category", async (req, res) => {
+      console.log(req.params.id);
       const toys = await toyCollection
         .find({
           sub_category: req.params.category
         })
         .toArray();
       res.send(toys);
-  })
+    })
 
-  // indexing name
-  app.get("/getToys/:text", async (req, res) => {
-    const text = req.params.text;
-    const result = await toyCollection
-      .find({
-        $or: [
-          { name: { $regex: text, $options: "i" } }
-        ],
-      })
-      .toArray();
-    res.send(result);
-  });
-    app.post('/toy', async(req, res) =>{
+    // indexing name
+    app.get("/getToys/:text", async (req, res) => {
+      const text = req.params.text;
+      const result = await toyCollection
+        .find({
+          $or: [
+            { name: { $regex: text, $options: "i" } }
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+
+    app.put('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateToy = req.body;
+      console.log(id, updateToy);
+
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updateToyData = {
+        $set: {
+          price: updateToy.price,
+          description: updateToy.description,
+          available_quantity: updateToy.available_quantity
+        }
+      }
+
+      const result = await toyCollection.updateOne(filter, updateToyData, options);
+      res.send(result)
+
+    })
+
+
+    app.post('/toy', async (req, res) => {
       const newToy = req.body;
       console.log(newToy);
       const result = await toyCollection.insertOne(newToy);
       res.send(result);
     })
-    app.get("/mytoy/:email", async(req, res)=> {
+    app.get("/mytoy/:email", async (req, res) => {
       console.log(req.params.id);
       const toys = await toyCollection.find({
-        seller_email : req.params.email,
+        seller_email: req.params.email,
       })
-      .toArray();
+        .toArray();
       res.send(toys)
     })
 
-    app.get('/mytoy/:id', async(req, res) => {
+    app.get('/mytoy/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await toyCollection.findOne(query);
       res.send(result);
-  })
-
-  app.put('/toy/:id', async(req, res) => {
-    const id = req.params.id;
-    const updateToy = req.body;
-    console.log(id, updateToy);
-
-    const filter = {_id: new ObjectId(id)}
-    const options = {upsert: true}
-    const updateToyData = {
-      $set: {
-        price: updateToy.price,
-        description: updateToy.description,
-        available_quantity: updateToy.available_quantity
-      }
-    }
-
-    const result = await toyCollection.updateOne(filter, updateToyData, options);
-    res.send(result)
-
-  })
+    })
 
 
-  app.get("/toy/:sub_category", async (req, res) => {
-    console.log(req.params.id);
-    const jobs = await toyCollection
-      .find({
-        status: req.params.category,
-      })
-      .toArray();
-    res.send(jobs);
-  });
 
-    app.delete("/mytoy/:id", async(req, res) => {
+
+    app.get("/toy/:sub_category", async (req, res) => {
+      console.log(req.params.id);
+      const jobs = await toyCollection
+        .find({
+          status: req.params.category,
+        })
+        .toArray();
+      res.send(jobs);
+    });
+
+    app.delete("/mytoy/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await toyCollection.deleteOne(query);
       res.send(result);
     })
@@ -145,9 +149,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Server is running')
+  res.send('Server is running')
 })
 
 app.listen(port, () => {
-    console.log(`Toys Server is running on port ${port}`)
+  console.log(`Toys Server is running on port ${port}`)
 })
