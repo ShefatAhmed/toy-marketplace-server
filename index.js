@@ -32,6 +32,10 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result);
     })
+    app.get('/alltoys', async(req, res) =>{
+        const result = await toyCollection.find().limit(20).toArray();
+        res.send(result);
+    })
     app.get('/toy/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
@@ -44,6 +48,28 @@ async function run() {
       const result = await toyCollection.findOne(query, options);
       res.send(result);
   })
+
+  app.get("/tabs/:category", async (req, res) => {
+    console.log(req.params.id);
+      const toys = await toyCollection
+        .find({
+          sub_category: req.params.category
+        })
+        .toArray();
+      res.send(toys);
+  })
+
+  app.get("/getToys/:text", async (req, res) => {
+    const text = req.params.text;
+    const result = await toyCollection
+      .find({
+        $or: [
+          { name: { $regex: text, $options: "i" } }
+        ],
+      })
+      .toArray();
+    res.send(result);
+  });
     app.post('/toy', async(req, res) =>{
       const newToy = req.body;
       console.log(newToy);
@@ -85,6 +111,17 @@ async function run() {
     res.send(result)
 
   })
+
+
+  app.get("/toy/:sub_category", async (req, res) => {
+    console.log(req.params.id);
+    const jobs = await toyCollection
+      .find({
+        status: req.params.category,
+      })
+      .toArray();
+    res.send(jobs);
+  });
 
     app.delete("/mytoy/:id", async(req, res) => {
       const id = req.params.id;
