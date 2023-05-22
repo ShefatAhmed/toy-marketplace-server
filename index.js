@@ -9,7 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.xak6ecy.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -92,7 +91,6 @@ async function run() {
 
     })
 
-
     app.post('/toy', async (req, res) => {
       const newToy = req.body;
       console.log(newToy);
@@ -114,9 +112,6 @@ async function run() {
       const result = await toyCollection.findOne(query);
       res.send(result);
     })
-
-
-
 
     app.get("/toy/:sub_category", async (req, res) => {
       console.log(req.params.id);
