@@ -47,7 +47,7 @@ async function run() {
       res.send(result);
     })
 
-    // indexing sub-category
+    // sub-category
     app.get("/tabs/:category", async (req, res) => {
       console.log(req.params.id);
       const toys = await toyCollection
@@ -58,7 +58,7 @@ async function run() {
       res.send(toys);
     })
 
-    // indexing name
+    // name
     app.get("/getToys/:text", async (req, res) => {
       const text = req.params.text;
       const result = await toyCollection
